@@ -1,7 +1,8 @@
 from functools import lru_cache
+from typing import Annotated
 
 from pydantic import Field, field_validator
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 
 
 class Settings(BaseSettings):
@@ -15,7 +16,9 @@ class Settings(BaseSettings):
     LLM_API_KEY: str
     LLM_BASE_URL: str = "https://llm.4geeks.ai"
     LLM_MODEL: str = "litellm/downtown-miami/groq/llama-3.1-8b-instant"
-    CORS_ORIGINS: list[str] = Field(default_factory=lambda: ["http://localhost:5173"])
+    CORS_ORIGINS: Annotated[list[str], NoDecode] = Field(
+        default_factory=lambda: ["http://localhost:5173"]
+    )
 
     @field_validator("CORS_ORIGINS", mode="before")
     @classmethod

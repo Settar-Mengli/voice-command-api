@@ -4,9 +4,21 @@ import { TaskCard } from "./TaskCard";
 
 export interface TaskListProps {
   tasks: Task[];
+  isLoading?: boolean;
 }
 
-export function TaskList({ tasks }: TaskListProps): ReactElement {
+export function TaskList({
+  tasks,
+  isLoading = false,
+}: TaskListProps): ReactElement {
+  if (isLoading && tasks.length === 0) {
+    return (
+      <div className="rounded-2xl border border-dashed border-slate-800 bg-slate-900/30 px-6 py-10 text-center">
+        <p className="text-sm text-slate-500">Loading tasks...</p>
+      </div>
+    );
+  }
+
   if (tasks.length === 0) {
     return (
       <div className="rounded-2xl border border-dashed border-slate-800 bg-slate-900/30 px-6 py-10 text-center">

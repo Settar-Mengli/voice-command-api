@@ -1,13 +1,17 @@
 import type { ReactElement, ReactNode } from "react";
 
 export interface StatusBarProps {
+  message: string;
   transcription: string;
   error: string | null;
+  isListening: boolean;
 }
 
 export function StatusBar({
+  message,
   transcription,
   error,
+  isListening,
 }: StatusBarProps): ReactElement {
   let content: ReactNode;
   let toneClasses: string;
@@ -15,9 +19,15 @@ export function StatusBar({
   if (error) {
     content = error;
     toneClasses = "text-rose-300";
-  } else if (transcription) {
+  } else if (isListening && transcription) {
     content = `"${transcription}"`;
-    toneClasses = "text-slate-100 italic";
+    toneClasses = "italic text-sky-300";
+  } else if (isListening) {
+    content = "Listening...";
+    toneClasses = "text-slate-400";
+  } else if (message) {
+    content = message;
+    toneClasses = "text-slate-100";
   } else {
     content = "Tap the mic to start.";
     toneClasses = "text-slate-500";

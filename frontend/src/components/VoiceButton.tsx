@@ -2,28 +2,36 @@ import type { ReactElement } from "react";
 
 export interface VoiceButtonProps {
   isListening: boolean;
+  disabled?: boolean;
   onClick?: () => void;
 }
 
 export function VoiceButton({
   isListening,
+  disabled = false,
   onClick,
 }: VoiceButtonProps): ReactElement {
   const baseClasses =
-    "relative inline-flex h-32 w-32 items-center justify-center rounded-full text-white shadow-2xl shadow-indigo-900/60 transition-transform duration-200 focus:outline-none focus-visible:ring-4 focus-visible:ring-indigo-400/60 hover:scale-105 active:scale-95";
+    "relative inline-flex h-32 w-32 items-center justify-center rounded-full text-white shadow-2xl shadow-indigo-900/60 transition-transform duration-200 focus:outline-none focus-visible:ring-4 focus-visible:ring-indigo-400/60";
 
   const stateClasses = isListening
     ? "bg-rose-500 motion-safe:animate-pulse"
     : "bg-gradient-to-br from-blue-500 via-indigo-500 to-violet-600";
 
+  const interactionClasses = disabled
+    ? "opacity-50 cursor-not-allowed"
+    : "hover:scale-105 active:scale-95";
+
   return (
     <div className="flex flex-col items-center gap-3">
       <button
         type="button"
+        disabled={disabled}
         aria-pressed={isListening}
+        aria-disabled={disabled}
         aria-label={isListening ? "Stop listening" : "Start listening"}
         onClick={onClick}
-        className={`${baseClasses} ${stateClasses}`}
+        className={`${baseClasses} ${stateClasses} ${interactionClasses}`}
       >
         {isListening && (
           <span

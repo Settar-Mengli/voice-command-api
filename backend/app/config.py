@@ -15,7 +15,7 @@ class Settings(BaseSettings):
 
     LLM_API_KEY: str
     LLM_BASE_URL: str = "https://llm.4geeks.ai"
-    LLM_MODEL: str = "litellm/downtown-miami/groq/llama-3.1-8b-instant"
+    LLM_MODEL: str = "downtown-miami/groq/llama-3.1-8b-instant"
     CORS_ORIGINS: Annotated[list[str], NoDecode] = Field(
         default_factory=lambda: ["http://localhost:5173"]
     )

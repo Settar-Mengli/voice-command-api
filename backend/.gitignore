@@ -1,0 +1,42 @@
+# ---------- Python ----------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+.eggs/
+
+# ---------- Build artefacts ----------
+dist/
+build/
+develop-eggs/
+downloads/
+eggs/
+sdist/
+wheels/
+*.manifest
+*.spec
+
+# ---------- Virtual environments ----------
+.venv/
+venv/
+ENV/
+env/
+
+# ---------- Test / coverage ----------
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.nox/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+.hypothesis/
+
+# ---------- Env files ----------
+.env
+.env.*
+!.env.example

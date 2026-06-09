@@ -1,4 +1,29 @@
-"""Pydantic models for task entities and request/response payloads.
+from pydantic import BaseModel, ConfigDict, Field
 
-Placeholder module. Concrete models are introduced in a later commit.
-"""
+
+class TaskBase(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    title: str = Field(min_length=1, max_length=200)
+    done: bool = False
+
+
+class TaskCreate(TaskBase):
+    pass
+
+
+class TaskReplace(TaskBase):
+    pass
+
+
+class TaskUpdate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    title: str | None = Field(default=None, min_length=1, max_length=200)
+    done: bool | None = None
+
+
+class TaskOut(BaseModel):
+    id: int
+    title: str
+    done: bool

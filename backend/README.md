@@ -1,13 +1,20 @@
 # Voice Command API - Backend
 
-FastAPI backend for a voice-controlled task manager. Exposes task CRUD
-endpoints and a `POST /instruction` endpoint that uses an LLM to route
-voice transcriptions to the correct task action.
+FastAPI service for a voice-controlled task manager. Exposes a small task
+CRUD surface plus a `POST /instruction` endpoint that calls an LLM to turn
+a plain-text voice transcription into a structured routing decision the
+frontend can dispatch.
 
-This commit contains only the scaffold: a `create_app()` factory, CORS
-middleware, a `GET /health` endpoint, pydantic-settings configuration,
-and a single health test. Routers, models, the store, and LLM client are
-introduced in later commits.
+## Endpoints
+
+- `GET    /health` - liveness probe.
+- `GET    /tasks` - list all tasks.
+- `POST   /tasks` - create a task.
+- `PUT    /tasks/{id}` - replace a task.
+- `PATCH  /tasks/{id}` - partial update (title and/or done).
+- `DELETE /tasks/{id}` - delete a task.
+- `POST   /instruction` - LLM intent routing. Body: `{"transcription": "<string>"}`.
+  Response shape: `{"endpoint": <string|null>, "method": <string|null>, "params": <object>}`.
 
 ## Prerequisites
 
@@ -50,12 +57,22 @@ pytest
 
 ## Environment variables
 
-See `.env.example` for the full list. Required:
+See `.env.example` for the full list.
 
-- `LLM_API_KEY` - API key for the LLM provider.
+Required:
+
+- `LLM_API_KEY` - API key for the LLM provider (4Geeks / LiteLLM gateway).
 
 Optional (defaults shown):
 
 - `LLM_BASE_URL` - `https://llm.4geeks.ai`
-- `LLM_MODEL` - `litellm/downtown-miami/groq/llama-3.1-8b-instant`
+- `LLM_MODEL` - `downtown-miami/groq/llama-3.1-8b-instant`
 - `CORS_ORIGINS` - `http://localhost:5173` (comma-separated for multiple origins)
+
+## Notes
+
+- The task store is in-memory. Tasks reset whenever the server restarts.
+  This is intentional for the demo; persistence is out of scope.
+- The LLM provider is abstracted behind an `LLMProvider` Protocol in
+  `app/llm/base.py`, so the Groq adapter can be swapped for another
+  implementation without touching the router.

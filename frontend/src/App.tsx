@@ -13,7 +13,7 @@ const UNSUPPORTED_MESSAGE =
 
 export default function App(): ReactElement {
   const speech = useSpeechRecognition();
-  const { tasks, isLoading, executeInstruction } = useTasks();
+  const { tasks, isLoading, error: tasksError, executeInstruction } = useTasks();
   const [statusMessage, setStatusMessage] = useState("");
   const prevListeningRef = useRef(false);
 
@@ -61,6 +61,8 @@ export default function App(): ReactElement {
     ? statusMessage
     : UNSUPPORTED_MESSAGE;
 
+  const displayedError = tasksError ?? speech.error;
+
   return (
     <Layout>
       <section
@@ -75,7 +77,7 @@ export default function App(): ReactElement {
         <StatusBar
           message={displayedMessage}
           transcription={speech.transcription}
-          error={speech.error}
+          error={displayedError}
           isListening={speech.isListening}
         />
       </section>

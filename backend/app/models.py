@@ -27,3 +27,15 @@ class TaskOut(BaseModel):
     id: int
     title: str
     done: bool
+
+
+class InstructionRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    transcription: str = Field(min_length=1, max_length=2000)
+
+
+class InstructionResponse(BaseModel):
+    endpoint: str | None
+    method: str | None
+    params: dict[str, object]

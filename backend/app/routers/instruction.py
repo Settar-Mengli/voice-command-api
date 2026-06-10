@@ -10,11 +10,20 @@ def get_llm_provider() -> LLMProvider:
     return GroqAdapter()
 
 
-@router.post("/instruction", response_model=InstructionResponse)
+def normalize_instruction_result(
+    result: dict[str, object],
+) -> InstructionResponse | list[InstructionResponse]:
+    actions = result.get("actions")
+    if isinstance(actions, list):
+        return [InstructionResponse.model_validate(item) for item in actions]
+    return InstructionResponse.model_validate(result)
+
+
+@router.post("/instruction")
 async def route_instruction(
     payload: InstructionRequest,
     provider: LLMProvider = Depends(get_llm_provider),
-) -> InstructionResponse:
+) -> InstructionResponse | list[InstructionResponse]:
     try:
         result = await provider.route_intent(payload.transcription)
     except LLMRoutingError as exc:
@@ -27,7 +36,7 @@ async def route_instruction(
         raise HTTPException(status_code=500, detail=f"Unexpected error: {exc}") from exc
 
     try:
-        return InstructionResponse.model_validate(result)
+        return normalize_instruction_result(result)
     except Exception as exc:
         return InstructionResponse(
             endpoint=None,

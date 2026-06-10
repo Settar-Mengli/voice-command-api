@@ -1,17 +1,22 @@
+export type Priority = "low" | "normal" | "high";
+
 export interface Task {
   id: number;
   title: string;
   done: boolean;
+  priority?: Priority;
 }
 
 export interface TaskCreate {
   title: string;
   done?: boolean;
+  priority?: Priority;
 }
 
 export interface TaskUpdate {
   title?: string;
   done?: boolean;
+  priority?: Priority;
 }
 
 export interface InstructionRequest {
@@ -23,3 +28,5 @@ export interface InstructionResponse {
   method: string | null;
   params: Record<string, unknown>;
 }
+
+export type InstructionResult = InstructionResponse | InstructionResponse[];

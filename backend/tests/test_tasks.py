@@ -13,6 +13,56 @@ def _reset_store() -> None:
     store._next_id = 1
 
 
+def test_create_task_priority_defaults_normal() -> None:
+    response = client.post("/tasks", json={"title": "buy milk"})
+    assert response.status_code == 201
+    body = response.json()
+    assert body == {"id": 1, "title": "buy milk", "done": False}
+
+
+def test_create_task_priority_high_round_trips() -> None:
+    response = client.post(
+        "/tasks",
+        json={"title": "urgent call", "priority": "high"},
+    )
+    assert response.status_code == 201
+    assert response.json() == {
+        "id": 1,
+        "title": "urgent call",
+        "done": False,
+        "priority": "high",
+    }
+
+
+def test_create_task_priority_low_round_trips() -> None:
+    response = client.post(
+        "/tasks",
+        json={"title": "organize photos", "priority": "low"},
+    )
+    assert response.status_code == 201
+    assert response.json() == {
+        "id": 1,
+        "title": "organize photos",
+        "done": False,
+        "priority": "low",
+    }
+
+
+def test_patch_priority_round_trips() -> None:
+    created = client.post("/tasks", json={"title": "report"}).json()
+    response = client.patch(
+        f"/tasks/{created['id']}",
+        json={"priority": "high"},
+    )
+    assert response.status_code == 200
+    assert response.json() == {
+        "id": created["id"],
+        "title": "report",
+        "done": False,
+        "priority": "high",
+    }
+
+
 def test_list_tasks_empty_on_fresh_start() -> None:
     response = client.get("/tasks")
     assert response.status_code == 200

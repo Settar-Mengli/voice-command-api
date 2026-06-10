@@ -4,6 +4,7 @@ import { Layout } from "./components/Layout";
 import { StatusBar } from "./components/StatusBar";
 import { TaskList } from "./components/TaskList";
 import { VoiceButton } from "./components/VoiceButton";
+import { useSpeech } from "./hooks/useSpeech";
 import { useSpeechRecognition } from "./hooks/useSpeechRecognition";
 import { useTasks } from "./hooks/useTasks";
 import { sendInstruction } from "./lib/api";
@@ -11,8 +12,12 @@ import { sendInstruction } from "./lib/api";
 const UNSUPPORTED_MESSAGE =
   "Voice not supported in this browser. Try Chrome or Edge.";
 
+const THINKING_MESSAGE = "Thinking...";
+
 export default function App(): ReactElement {
   const speech = useSpeechRecognition();
+  const { speak, isSupported: ttsSupported, isMuted, toggleMute } =
+    useSpeech();
   const { tasks, isLoading, error: tasksError, executeInstruction } = useTasks();
   const [statusMessage, setStatusMessage] = useState("");
   const prevListeningRef = useRef(false);
@@ -42,11 +47,12 @@ export default function App(): ReactElement {
     }
 
     void (async () => {
-      setStatusMessage("Thinking...");
+      setStatusMessage(THINKING_MESSAGE);
       try {
         const response = await sendInstruction(text);
         const summary = await executeInstruction(response);
         setStatusMessage(summary);
+        speak(summary);
       } catch (e) {
         setStatusMessage(
           `Something went wrong: ${e instanceof Error ? e.message : String(e)}`,
@@ -55,16 +61,25 @@ export default function App(): ReactElement {
         speech.reset();
       }
     })();
-  }, [speech, executeInstruction]);
+  }, [speech, executeInstruction, speak]);
 
   const displayedMessage = speech.isSupported
     ? statusMessage
     : UNSUPPORTED_MESSAGE;
 
-  const displayedError = tasksError ?? speech.error;
+  const displayedError =
+    statusMessage || speech.isListening
+      ? speech.isListening
+        ? speech.error
+        : null
+      : tasksError ?? speech.error;
 
   return (
-    <Layout>
+    <Layout
+      speechSupported={ttsSupported}
+      speechEnabled={!isMuted}
+      onToggleSpeech={toggleMute}
+    >
       <section
         aria-label="Voice control"
         className="flex flex-col items-center gap-6"

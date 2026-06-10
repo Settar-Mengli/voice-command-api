@@ -11,6 +11,31 @@ class LLMRoutingError(Exception):
     pass
 
 
+def _validate_routing_object(item: object, label: str) -> None:
+    if not isinstance(item, dict):
+        raise LLMRoutingError(f"{label} was not an object: {item!r}")
+    for key in ("endpoint", "method", "params"):
+        if key not in item:
+            raise LLMRoutingError(f"{label} missing {key!r}: {item!r}")
+    if not isinstance(item["params"], dict):
+        raise LLMRoutingError(f"{label} params was not an object: {item!r}")
+
+
+def _validate_parsed_routing(parsed: dict[str, object]) -> dict[str, object]:
+    if "actions" in parsed:
+        actions = parsed["actions"]
+        if not isinstance(actions, list):
+            raise LLMRoutingError(f'"actions" was not a list: {actions!r}')
+        if len(actions) == 0:
+            raise LLMRoutingError('"actions" must not be empty')
+        for index, item in enumerate(actions):
+            _validate_routing_object(item, f"actions[{index}]")
+        return parsed
+
+    _validate_routing_object(parsed, "routing object")
+    return parsed
+
+
 class GroqAdapter:
     def __init__(self) -> None:
         settings = get_settings()
@@ -55,4 +80,4 @@ class GroqAdapter:
         if not isinstance(parsed, dict):
             raise LLMRoutingError(f"LLM JSON was not an object: {parsed!r}")
 
-        return parsed
+        return _validate_parsed_routing(parsed)

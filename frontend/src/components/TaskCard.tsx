@@ -6,6 +6,8 @@ export interface TaskCardProps {
 }
 
 export function TaskCard({ task }: TaskCardProps): ReactElement {
+  const priority = task.priority ?? "normal";
+
   return (
     <article className="group flex items-center gap-4 rounded-2xl border border-slate-800/70 bg-slate-900/40 px-5 py-4 shadow-sm transition-colors duration-200 hover:border-slate-700">
       <CheckboxIndicator checked={task.done} />
@@ -18,9 +20,25 @@ export function TaskCard({ task }: TaskCardProps): ReactElement {
           {task.title}
         </p>
       </div>
-      <span className="shrink-0 rounded-full border border-slate-700/80 px-2.5 py-0.5 text-xs font-medium text-slate-400">
-        #{task.id}
-      </span>
+      <div className="flex shrink-0 items-center gap-2">
+        {priority === "high" ? (
+          <span
+            className="h-2 w-2 rounded-full bg-rose-400"
+            aria-label="High priority"
+            title="High priority"
+          />
+        ) : null}
+        {priority === "low" ? (
+          <span
+            className="h-2 w-2 rounded-full bg-slate-600"
+            aria-label="Low priority"
+            title="Low priority"
+          />
+        ) : null}
+        <span className="rounded-full border border-slate-700/80 px-2.5 py-0.5 text-xs font-medium text-slate-400">
+          #{task.id}
+        </span>
+      </div>
     </article>
   );
 }

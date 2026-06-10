@@ -13,12 +13,16 @@ def list_tasks() -> list[dict[str, int | str | bool]]:
 
 @router.post("", response_model=TaskOut, status_code=status.HTTP_201_CREATED)
 def create_task(payload: TaskCreate) -> dict[str, int | str | bool]:
-    return store.create_task(title=payload.title, done=payload.done)
+    return store.create_task(
+        title=payload.title, done=payload.done, priority=payload.priority
+    )
 
 
 @router.put("/{task_id}", response_model=TaskOut)
 def replace_task(task_id: int, payload: TaskReplace) -> dict[str, int | str | bool]:
-    task = store.replace_task(task_id, payload.title, payload.done)
+    task = store.replace_task(
+        task_id, payload.title, payload.done, payload.priority
+    )
     if task is None:
         raise HTTPException(status_code=404, detail="Task not found")
     return task
@@ -26,7 +30,9 @@ def replace_task(task_id: int, payload: TaskReplace) -> dict[str, int | str | bo
 
 @router.patch("/{task_id}", response_model=TaskOut)
 def update_task(task_id: int, payload: TaskUpdate) -> dict[str, int | str | bool]:
-    task = store.update_task(task_id, payload.title, payload.done)
+    task = store.update_task(
+        task_id, payload.title, payload.done, payload.priority
+    )
     if task is None:
         raise HTTPException(status_code=404, detail="Task not found")
     return task

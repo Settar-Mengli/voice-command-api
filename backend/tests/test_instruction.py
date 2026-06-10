@@ -107,6 +107,58 @@ def test_instruction_llm_failure_returns_graceful_fallback() -> None:
     assert body["params"]["error"].startswith("LLM routing failed:")
 
 
+def test_instruction_multi_action_returns_list() -> None:
+    llm_response: dict[str, Any] = {
+        "actions": [
+            {
+                "endpoint": "/tasks",
+                "method": "POST",
+                "params": {"title": "milk", "done": False},
+            },
+            {
+                "endpoint": "/tasks",
+                "method": "POST",
+                "params": {"title": "eggs", "done": False},
+            },
+            {
+                "endpoint": "/tasks",
+                "method": "POST",
+                "params": {"title": "call mom", "done": False},
+            },
+        ]
+    }
+    _install(_FakeProvider(response=llm_response))
+
+    response = client.post(
+        "/instruction",
+        json={"transcription": "add milk, eggs, and call mom"},
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert isinstance(body, list)
+    assert len(body) == 3
+    assert body[0]["method"] == "POST"
+    assert body[0]["params"]["title"] == "milk"
+
+
+def test_instruction_single_action_returns_object_not_array() -> None:
+    expected: dict[str, Any] = {
+        "endpoint": "/tasks",
+        "method": "POST",
+        "params": {"title": "buy groceries", "done": False},
+    }
+    _install(_FakeProvider(response=expected))
+
+    response = client.post("/instruction", json={"transcription": "add buy groceries"})
+
+    assert response.status_code == 200
+    body = response.json()
+    assert isinstance(body, dict)
+    assert "actions" not in body
+    assert body == expected
+
+
 def test_instruction_unclear_intent_returns_null_endpoint() -> None:
     expected: dict[str, Any] = {
         "endpoint": None,
